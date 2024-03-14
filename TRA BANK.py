@@ -4,13 +4,8 @@ import re
 import os
 
 class Customers:
-
-    """This is the initial method of the customer class"""
     def __init__(self):
-        self.customer_list = {"name": [], "surname": [], "password": [], "accountnum": [], "balance": []}
-
-    """When this method is called, accountnum and balance occurs, name, surname and password are taken as parameter
-    After password parameter sends to the choosing_password method to be controlled for validation """
+        self.customer_list = {"name": [], "surname": [], "password": [], "accountnum": [], "balance": [], "loan": []}
 
     def create_customers(self, name, surname, password):
         while True:
@@ -26,17 +21,13 @@ class Customers:
             elif flag == 0:
                 return flag
 
-    """This method adds the customer information to the customer list"""
-
     def add_customer(self):
         self.customer_list["name"].append(self.name)
         self.customer_list["surname"].append(self.surname)
         self.customer_list["password"].append(self.password)
         self.customer_list["accountnum"].append(self.accountnum)
         self.customer_list["balance"].append(self.balance)
-
-    """This method removes the chosen customer from the customer list
-     after controlling whether chosen customer is exist or not """
+        self.customer_list["loan"].append(0)  # Initialize loan amount to 0 for new customers
 
     def remove_customer(self, remove_name, remove_surname):
         for i in self.customer_list["name"]:
@@ -49,11 +40,9 @@ class Customers:
                         self.customer_list["password"].pop(index)
                         self.customer_list["accountnum"].pop(index)
                         self.customer_list["balance"].pop(index)
+                        self.customer_list["loan"].pop(index)
                         wait(3)
                         print("Your operation completed")
-
-    """This method controls whether chosen customer is exist or not and send remove_name and remove_surname to 
-    remove_customer method as parameters"""
 
     def is_there_customer(self, remove_name, remove_surname):
         flag = 0
@@ -64,21 +53,14 @@ class Customers:
                         self.remove_customer(remove_name, remove_surname)
                         return flag
 
-    """This method controls name, surname and password in customer list for sign in"""
-
     def entrance_control(self, entrance_name, entrance_surname, entrance_password):
         for i in self.customer_list["name"]:
             if entrance_name == i:
-
                 for k in self.customer_list["surname"]:
                     if entrance_surname == k:
-
                         for j in self.customer_list["password"]:
                             if entrance_password == j:
-
                                 return True
-
-    """This method defines some conditions to customers' password definition"""
 
     def choosing_password(self, entrance_password):
         flag = 0
@@ -108,19 +90,31 @@ class Customers:
         if flag == -1:
             print("Invalid password")
 
-    """"This method controls the name and surname of customer who the money will transfer to in money transfer part """
-
     def money_transfer_validation(self, name, surname):
-
         for i in self.customer_list["name"]:
             if name == i:
-
                 for k in self.customer_list["surname"]:
                     if surname == k:
                         return True
 
+    def apply_loan(self, name, surname, loan_amount):
+        for i in range(len(self.customer_list["name"])):
+            if self.customer_list["name"][i] == name and self.customer_list["surname"][i] == surname:
+                current_balance = self.customer_list["balance"][i]
+                if loan_amount <= current_balance * 2:  # Example: Loan amount cannot exceed double the current balance
+                    self.customer_list["balance"][i] += loan_amount
+                    self.customer_list["loan"][i] += loan_amount
+                    wait(3)
+                    print("Loan successfully applied!")
+                    return True
+                else:
+                    wait(3)
+                    print("Loan amount exceeds eligibility (maximum loan amount is double the current balance)")
+                    return False
+        wait(3)
+        print("Customer not found!")
+        return False
 
-""""This method keeps wait after some operations """
 
 def wait(n):
     str = "Your transaction is running"
@@ -134,11 +128,9 @@ def wait(n):
 
 
 def main():
-
     customer = Customers()
 
     while True:
-
         print("-----------------------------\n"
               "WELCOME TO THE TRA BANK\n"
               "-----------------------------\n"
@@ -146,7 +138,8 @@ def main():
               "=============================\n"
               "[1] Sign in\n"
               "[2] Sign up\n"
-              "[3] Management")
+              "[3] Apply for Loan\n"
+              "[4] Management")
 
         selection = input("")
 
@@ -166,6 +159,7 @@ def main():
                           "[2] Withdraw money     \n"
                           "[3] Deposit money      \n"
                           "[4] Money transfer     \n"
+                          "[5] Apply for Loan     \n"
                           "[Q or q] Quit          \n".format(entrance_name.title(), entrance_surname.upper()))
                     selection = input()
                     if selection == "q" or selection == "Q":
@@ -179,9 +173,10 @@ def main():
                                   "Surname:{}     \n"
                                   "Password:{}    \n"
                                   "account no:{} \n"
-                                  "Balance:{}".format(customer.customer_list["name"][index], customer.customer_list["surname"][index],
-                                                                    customer.customer_list["password"][index], customer.customer_list["accountnum"][index],
-                                                                    customer.customer_list["balance"][index]))
+                                  "Balance:{}\n"
+                                  "Loan:{}".format(customer.customer_list["name"][index], customer.customer_list["surname"][index],
+                                                  customer.customer_list["password"][index], customer.customer_list["accountnum"][index],
+                                                  customer.customer_list["balance"][index], customer.customer_list["loan"][index]))
                             input("to menu press enter")
                             break
                     elif selection == "2":
@@ -240,129 +235,11 @@ def main():
                                             input("You do not have enough money to transfer \n"
                                                   "enter to return menu")
                                             break
-                                        elif transfer_money == customer.customer_list["balance"][index]:
-                                            selection = input("You are about to send all your money are you sure [y/n] ")
-
-                                            if selection == "Y" or selection == "y":
-
-                                                   customer.customer_list["balance"][index_transfer] += transfer_money
-                                                   customer.customer_list["balance"][index] -= transfer_money
-                                                   wait(3)
-                                                   print("Operation completed")
-                                                   break
-                                            elif selection == "N" or selection == "n":
-
-                                                print("Operation cancelling...")
-                                                break
-                                            else:
-                                               while True:
-                                                   print("Press valid button")
-                                                   break
-
-                                        elif transfer_money < customer.customer_list["balance"][index]:
-                                            customer.customer_list["balance"][index_transfer] += transfer_money
-                                            customer.customer_list["balance"][index] -= transfer_money
-                                            wait(3)
-                                            print("Operation completed")
-                                            break
-                                    except ValueError:
-                                        print("Please write integer value")
-                                        break
-                                else:
-                                    print("You can not send money on your own")
-
-                            else:
-                                print("Could not find user")
-                                break
-
-                    else:
+                    elif selection == "5":
                         while True:
-                            print("Invalid choice")
-                            break
-            else:
-                while True:
-                    if input("Wrong password or username \n"
-                             "to main menu press enter") == "":
-                        break
-        elif selection == "2":
-            while True:
+                            loan_amount = float(input("Enter the loan amount: "))
+                            customer.apply_loan(entrance_name, entrance_surname, loan_amount)
 
-                flag = customer.create_customers(input("Name:"), input("Surname:"), input("Primary conditions for password validation:          \n"
-                                                                                   "1.Minimum 8 characters.                              \n"
-                                                                                   "2.The alphabets must be between [a-z]                \n"
-                                                                                   "3.At least one alphabet should be of Upper Case [A-Z]\n"
-                                                                                   "4.At least 1 number or digit between [0-9].          \n"
-                                                                                   "5.At least 1 character from [ _ or - or ! or @ ]."))
 
-                if flag == 0:
-                    print("Your account is creating")
-                    wait(3)
-                    print("Your account has been created")
-                    customer.add_customer()
-                    input("-----------------------------\n"
-                          "To continue press enter")
-                    break
-                while True:
-                    if flag == -1:
-                        break
-
-        elif selection == "3":
-            while True:
-
-                print("Welcome to management part")
-                selection = input("--------------------------\n"
-                                  "Make a selection \n"
-                                  "[1] Show the customer information\n"
-                                  "[2] Remove customers\n"
-                                  "[Q] to return main menu")
-                                  
-                if selection == "1":
-                    print("Name:{}\n"
-                          "Surname:{}\n"
-                          "Password:{}\n"
-                          "accountnum:{}\n"
-                          "Balance:{}".format(customer.customer_list["name"],
-                                                  customer.customer_list["surname"],
-                                                  customer.customer_list["password"],
-                                                  customer.customer_list["accountnum"],
-                                                  customer.customer_list["balance"]))
-                elif selection == "2":
-                    if len(customer.customer_list["name"]) == 0:
-                        print("There are no customers")
-                        enter = input("Press enter to return main menu\n")
-                        if enter == "":
-                            break
-                    else:
-                        flag = customer.is_there_customer(input("Name"), input("Surname"))
-                        if flag == 0:
-                            while True:
-
-                                enter = input("Press enter to return main menu\n"
-                                              "--------------------------------")
-                                if enter == "":
-                                    break
-                                elif enter != "":
-                                    while True:
-                                        print("Please press valid button\n"
-                                              "Press enter to return main menu\n")
-                                        break
-                        else:
-                            print("The user can not found")
-
-                elif selection == "q" or selection == "Q":
-                    break
-                else:
-                    while True:
-
-                        print("Press valid button")
-                        break
-        else:
-            while True:
-
-                print("Please make a valid selection")
-                print("-----------------------------\n"
-                      "To continue press enter")
-                input()
-                break
-
-main()
+if __name__ == "__main__":
+    main()
