@@ -235,11 +235,13 @@ def main():
                                             input("You do not have enough money to transfer \n"
                                                   "enter to return menu")
                                             break
+                                    except ValueError:
+                                        print("erorr",191)
                     elif selection == "5":
                         while True:
                             loan_amount = float(input("Enter the loan amount: "))
                             customer.apply_loan(entrance_name, entrance_surname, loan_amount)
-
+                            
 
 if __name__ == "__main__":
     main()
